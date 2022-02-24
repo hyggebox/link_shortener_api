@@ -1,0 +1,33 @@
+{% load bootstrap5 %}
+
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+<!DOCTYPE html>
+<html lang='ru'>
+<head>
+  <meta charset='utf-8'>
+  <meta content='width=device-width, initial-scale=1, shrink-to-fit=no'
+        name='viewport'>
+
+  <title>Link Shortener</title>
+</head>
+<body>
+<div class='container'>
+  <div class="row align-items-center">
+    <div class="col-6 offset-3">
+      <p>Введите ссылку, которую нужно сократить:</p>
+
+      <form action='/' method='post'>
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% buttons %}
+        <input class='btn btn-primary' type='submit' value='Отправить'>
+        {% endbuttons %}
+      </form>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
