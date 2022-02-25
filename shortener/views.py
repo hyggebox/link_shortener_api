@@ -29,8 +29,8 @@ def show_form(request):
         if form.is_valid():
             users_string = form.cleaned_data.get('custom_name')
             full_url = form.cleaned_data.get('full_url')
-            converted_url_response = convert_url(full_url, users_string)
-            return JsonResponse(converted_url_response, status=200)
+            return JsonResponse(convert_url(full_url, users_string),
+                                status=200)
 
     form = ShortenLinkForm()
     return render(request, 'index.html', context={'form': form})
