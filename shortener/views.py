@@ -13,14 +13,24 @@ from .models import Link
 
 
 def convert_url(full_url, users_string):
-    if users_string:
-        short_name = users_string
-    else:
-        short_name = get_random_string(5, allowed_chars=string.ascii_lowercase)
+    short_name = users_string or create_short_name()
     Link.objects.create(short_name=short_name, full_url=full_url)
     current_site = Site.objects.get_current()
     return {'full_url': full_url,
             'short_url': f'http://{current_site.domain}/{short_name}'}
+
+
+def is_name_taken(short_name):
+    return Link.objects.filter(pk=short_name).exists()
+
+
+def create_short_name():
+    char_num = 5
+    generated_name = get_random_string(char_num,
+                                       allowed_chars=string.ascii_lowercase)
+    if is_name_taken(generated_name):
+        return create_short_name()
+    return generated_name
 
 
 def show_form(request):
@@ -29,6 +39,10 @@ def show_form(request):
         if form.is_valid():
             users_string = form.cleaned_data.get('custom_name')
             full_url = form.cleaned_data.get('full_url')
+            if is_name_taken(users_string):
+                return JsonResponse(
+                    {'Error': f'Short name {users_string} is already taken'},
+                    status=400)
             return JsonResponse(convert_url(full_url, users_string),
                                 status=200)
 
