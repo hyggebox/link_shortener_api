@@ -45,9 +45,9 @@ def show_form(request):
                     status=400)
             return JsonResponse(convert_url(full_url, users_string),
                                 status=200)
-
-    form = ShortenLinkForm()
-    return render(request, 'index.html', context={'form': form})
+        return render(request, 'index.html',
+                      context={'form': ShortenLinkForm(request.POST)})
+    return render(request, 'index.html', context={'form': ShortenLinkForm()})
 
 
 def redirect_to_full_url(request, short_name):
