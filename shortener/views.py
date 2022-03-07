@@ -44,7 +44,7 @@ def show_form(request):
                     {'Error': f'Short name `{users_string}` is already taken'},
                     status=400)
             return JsonResponse(convert_url(full_url, users_string),
-                                status=200)
+                                status=201)
         return render(request, 'index.html',
                       context={'form': ShortenLinkForm(request.POST)})
     return render(request, 'index.html', context={'form': ShortenLinkForm()})
