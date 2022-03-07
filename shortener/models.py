@@ -8,7 +8,7 @@ class Link(models.Model):
     full_url = models.URLField(verbose_name='Полная ссылка', max_length=200)
 
     def __str__(self):
-        return f'{self.short_name}'
+        return self.short_name
 
     class Meta:
         verbose_name = 'Ссылку'
