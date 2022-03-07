@@ -21,7 +21,7 @@ def convert_url(full_url, users_string):
 
 
 def is_name_taken(short_name):
-    return Link.objects.filter(pk=short_name).exists()
+    return Link.objects.name_taken(short_name)
 
 
 def create_short_name():
@@ -41,7 +41,7 @@ def show_form(request):
             full_url = form.cleaned_data.get('full_url')
             if is_name_taken(users_string):
                 return JsonResponse(
-                    {'Error': f'Short name {users_string} is already taken'},
+                    {'Error': f'Short name `{users_string}` is already taken'},
                     status=400)
             return JsonResponse(convert_url(full_url, users_string),
                                 status=200)
