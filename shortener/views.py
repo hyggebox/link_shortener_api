@@ -36,17 +36,17 @@ def create_short_name():
 def show_form(request):
     if request.method == 'POST':
         form = ShortenLinkForm(request.POST)
-        if form.is_valid():
-            users_string = form.cleaned_data.get('custom_name')
-            full_url = form.cleaned_data.get('full_url')
-            if is_name_taken(users_string):
-                return JsonResponse(
-                    {'Error': f'Short name `{users_string}` is already taken'},
-                    status=400)
-            return JsonResponse(convert_url(full_url, users_string),
-                                status=201)
-        return render(request, 'index.html',
-                      context={'form': ShortenLinkForm(request.POST)})
+        if not form.is_valid():
+            return render(request, 'index.html',
+                          context={'form': ShortenLinkForm(request.POST)})
+        users_string = form.cleaned_data.get('custom_name')
+        full_url = form.cleaned_data.get('full_url')
+        if is_name_taken(users_string):
+            return JsonResponse(
+                {'Error': f'Short name `{users_string}` is already taken'},
+                status=400)
+        return JsonResponse(convert_url(full_url, users_string),
+                            status=201)
     return render(request, 'index.html', context={'form': ShortenLinkForm()})
 
 
@@ -54,27 +54,25 @@ def redirect_to_full_url(request, short_name):
     users_link = Link.objects.filter(short_name=short_name).first()
     if users_link:
         return HttpResponseRedirect(users_link.full_url)
-    return JsonResponse(
-        {'Error': 'No such short url in the database'},
-        status=404)
+    return JsonResponse({'Error': 'No such short url in the database'},
+                        status=404)
 
 
 def get_full_url(request):
     short_name = request.GET.get('short_name', None)
-    if short_name:
-        users_link = Link.objects.filter(short_name=short_name).first()
-        if users_link:
-            current_site = Site.objects.get_current()
-            return JsonResponse(
-                {
-                    'full_url': users_link.full_url,
-                    'short_url': f'http://{current_site.domain}/{short_name}'
-                },
-                status=200)
+    if not short_name:
+        return JsonResponse({'Error': 'No params provided'}, status=400)
+    users_link = Link.objects.filter(short_name=short_name).first()
+    if users_link:
+        current_site = Site.objects.get_current()
         return JsonResponse(
-            {'Error': 'No such short url in the database'},
-            status=404)
-    return JsonResponse({'Error': 'No params provided'}, status=400)
+            {
+                'full_url': users_link.full_url,
+                'short_url': f'http://{current_site.domain}/{short_name}'
+            },
+            status=200)
+    return JsonResponse({'Error': 'No such short url in the database'},
+                        status=404)
 
 
 @csrf_exempt
