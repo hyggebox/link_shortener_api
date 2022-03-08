@@ -78,3 +78,6 @@ __POST__ /add
 ```commandline
 python manage.py createsuperuser
 ```
+
+## Демо-версия проекта
+Демо-версия проекта доступна ссылке: [link-short-api.herokuapp.com](https://link-short-api.herokuapp.com/)
