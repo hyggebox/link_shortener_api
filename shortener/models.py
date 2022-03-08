@@ -12,6 +12,8 @@ class Link(models.Model):
                                   max_length=100,
                                   primary_key=True)
     full_url = models.URLField(verbose_name='Полная ссылка', max_length=200)
+    created_at = models.DateTimeField(verbose_name='Когда ссылка сокращена',
+                                      auto_now_add=True, null=True)
 
     objects = LinkQuerySet.as_manager()
 
