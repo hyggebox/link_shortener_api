@@ -1,6 +1,5 @@
 import string
 
-from django.contrib.sites.models import Site
 from django.core.validators import URLValidator, validate_slug
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect, JsonResponse
@@ -12,12 +11,11 @@ from .forms import ShortenLinkForm
 from .models import Link
 
 
-def convert_url(full_url, users_string):
+def convert_url(full_url, users_string, hostname):
     short_name = users_string or create_short_name()
     Link.objects.create(short_name=short_name, full_url=full_url)
-    current_site = Site.objects.get_current()
     return {'full_url': full_url,
-            'short_url': f'http://{current_site.domain}/{short_name}'}
+            'short_url': f'http://{hostname}/{short_name}'}
 
 
 def is_name_taken(short_name):
@@ -45,8 +43,10 @@ def show_form(request):
             return JsonResponse(
                 {'Error': f'Short name `{users_string}` is already taken'},
                 status=400)
-        return JsonResponse(convert_url(full_url, users_string),
-                            status=201)
+        return JsonResponse(
+            convert_url(full_url, users_string, request.get_host()),
+            status=201
+        )
     return render(request, 'index.html', context={'form': ShortenLinkForm()})
 
 
@@ -64,11 +64,10 @@ def get_full_url(request):
         return JsonResponse({'Error': 'No params provided'}, status=400)
     users_link = Link.objects.filter(short_name=short_name).first()
     if users_link:
-        current_site = Site.objects.get_current()
         return JsonResponse(
             {
                 'full_url': users_link.full_url,
-                'short_url': f'http://{current_site.domain}/{short_name}'
+                'short_url': f'http://{request.get_host()}/{short_name}'
             },
             status=200)
     return JsonResponse({'Error': 'No such short url in the database'},
@@ -91,4 +90,7 @@ def create_short_url(request):
                 status=400)
     except ValidationError:
         return JsonResponse({'Error': 'String is not valid URL'}, status=400)
-    return JsonResponse(convert_url(url_to_convert, users_string), status=200)
+    return JsonResponse(
+        convert_url(url_to_convert, users_string, request.get_host()),
+        status=200
+    )
