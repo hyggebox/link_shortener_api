@@ -1,4 +1,5 @@
 import os
+import django_heroku
 
 from environs import Env
 from pathlib import Path
@@ -90,3 +91,6 @@ STATIC_ROOT = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SITE_ID = 1
+
+
+django_heroku.settings(locals())
